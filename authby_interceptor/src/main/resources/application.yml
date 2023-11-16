@@ -1,2 +1,13 @@
 server:
   port: 8099
+#auth.way: 0，接口授权方式: 0-不鉴权 ,1-摘要信息从header中获取 , 2-摘要信息从url中获取 ,3-摘要信息从body中获取;默认为0
+#授权对接的厂家,阿里巴巴-alibaba,百度-baidu
+auth:
+  way: 1
+  flag: headerFlag
+  manufacturer: alibaba
+  maxinterval: 5
+
+#spring:
+#  main:
+#    allow-bean-definition-overriding: true
