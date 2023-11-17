@@ -25,7 +25,7 @@ public class MyAuthProperties {
     /**
      * 开放厂家，如果没配，那么就默认不鉴权，way为0
      */
-    private String manufacturer;
+    private String company;
     /**
      * 因为请求方和响应方可能会有时间偏差，所以需要允许一定的误差范围
      */
@@ -46,20 +46,19 @@ public class MyAuthProperties {
     public void setWay(Integer way) {
         this.way = way;
     }
-
-    public String getManufacturer() {
-        return manufacturer;
-    }
-
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
-    }
-
     public Integer getMaxinterval() {
         return maxinterval;
     }
 
     public void setMaxinterval(Integer maxinterval) {
         this.maxinterval = maxinterval;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 }

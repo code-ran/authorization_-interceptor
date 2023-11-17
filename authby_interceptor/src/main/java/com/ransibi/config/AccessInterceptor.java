@@ -28,7 +28,7 @@ public class AccessInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String manufacturer = myAuthProperties.getManufacturer();
+        String manufacturer = myAuthProperties.getCompany();
         //默认不鉴权
         if (myAuthProperties.getWay() == 0) {
             return true;

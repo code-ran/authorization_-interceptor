@@ -5,7 +5,7 @@ server:
 auth:
   way: 1
   flag: headerFlag
-  manufacturer: alibaba
+  company: alibaba
   maxinterval: 5
 
 #spring:
