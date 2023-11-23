@@ -19,11 +19,15 @@ public class MyAuthProperties {
      */
     private String flag = "headerFlag";
     /**
-     * 接口鉴权方式: 0-不鉴权 ,1-摘要信息从header中获取 , 2-摘要信息从url中获取 ,3-摘要信息从body中获取;默认为0
+     * 接口鉴权方式: 0-不鉴权 ,
+     * 1-摘要信息从header中获取 ,
+     * 2-摘要信息从url中获取 ,
+     * 3-摘要信息从body中获取;
+     * 默认为0
      */
     private Integer way = 0;
     /**
-     * 开放厂家，如果没配，那么就默认不鉴权，way为0
+     * 开放机构，如果没配，那么就默认不鉴权，way为0
      */
     private String company;
     /**

@@ -4,11 +4,14 @@ package com.ransibi.config;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
@@ -39,44 +42,71 @@ public class AccessInterceptor implements HandlerInterceptor {
         }
         //授权规则为，以当前时间为准，前后不相差所配置最大时间间隔max_num
         int max_num = myAuthProperties.getMaxinterval();
+        System.out.println("鉴权误差范围(分钟):" + max_num);
         //使用请求头的摘要信息鉴权
         if (myAuthProperties.getWay() == 1) {
             //获取请求头中的摘要信息
             String abstractInfo = request.getHeader(myAuthProperties.getFlag());
-            if (authRule(max_num, manufacturer, abstractInfo)) {
-                return true;
+            System.out.println("请求header中获取的摘要信息:{}" + abstractInfo);
+            if (StringUtils.isNotEmpty(abstractInfo)) {
+                if (authRule(max_num, manufacturer, abstractInfo)) {
+                    return true;
+                }
             }
             //不满足授权规则，重定向到认证失败接口，返回相应的异常信息
-            response.sendRedirect(request.getContextPath() + "/login/toLoginPage");
+            response.sendRedirect(request.getContextPath() + "/user/error");
         }
         //使用url中摘要参数鉴权
         if (myAuthProperties.getWay() == 2) {
             //获取url中的摘要信息
             String abstractInfo = request.getParameter(myAuthProperties.getFlag());
-            if (authRule(max_num, manufacturer, abstractInfo)) {
-                return true;
+            System.out.println("请求url中获取的摘要信息:" + abstractInfo);
+            if (StringUtils.isNotEmpty(abstractInfo)) {
+                if (authRule(max_num, manufacturer, abstractInfo)) {
+                    return true;
+                }
             }
             //不满足授权规则，重定向到认证失败接口，返回相应的异常信息
-            response.sendRedirect(request.getContextPath() + "/login/toLoginPage");
+            response.sendRedirect(request.getContextPath() + "/user/error");
+        }
+        //使用body中摘要参数授权
+        if (myAuthProperties.getWay() == 3) {
+            ServletInputStream inputStream = request.getInputStream();
+            byte[] bytes = new byte[request.getContentLength()];
+            inputStream.read(bytes);
+            String s = new String(bytes, "utf-8");
+            JSONObject jsonObject = JSON.parseObject(s);
+            String abstractInfo = jsonObject.get(myAuthProperties.getFlag()).toString();
+            System.out.println("post请求body中获取的摘要信息:" + abstractInfo);
+            if (StringUtils.isNotEmpty(abstractInfo)) {
+                if (authRule(max_num, manufacturer, abstractInfo)) {
+                    return true;
+                }
+            }
+            //不满足授权规则，重定向到认证失败接口，返回相应的异常信息
+            response.sendRedirect(request.getContextPath() + "/user/error");
         }
         //默认拦截
         return false;
     }
 
     private static boolean authRule(int max_num, String manufacturer, String abstractInfo) {
-        if (StringUtils.isNotEmpty(abstractInfo)) {
-            for (int i = 0; i <= max_num; i++) {
-                Date nowDate = new Date();
-                System.out.println("当前时间:" + DateUtil.date(nowDate).toString());
-                Date nextDate = DateUtil.offsetMinute(nowDate, i);
-                if (checkAbstractInfo(manufacturer, nextDate, abstractInfo)) {
-                    return true;
-                }
-                //对于向前伸缩时间，需要排除当前时间，避免与向后伸缩时间重复
-                Date lastDate = DateUtil.offsetMinute(nowDate, -i - 1);
-                if (checkAbstractInfo(manufacturer, lastDate, abstractInfo)) {
-                    return true;
-                }
+        Date nowDate = new Date();
+        //当前时间比对
+        if (checkAbstractInfo(manufacturer, nowDate, abstractInfo)) {
+            return true;
+        }
+        for (int i = 0; i < max_num; i++) {
+            Date nextDate = DateUtil.offsetMinute(nowDate, i + 1);
+            //向后伸缩比对
+            if (checkAbstractInfo(manufacturer, nextDate, abstractInfo)) {
+                return true;
+            }
+            //对于向前伸缩时间，需要排除当前时间，避免与向后伸缩时间重复
+            Date lastDate = DateUtil.offsetMinute(nowDate, -i - 1);
+            //向前伸缩比对
+            if (checkAbstractInfo(manufacturer, lastDate, abstractInfo)) {
+                return true;
             }
         }
         return false;

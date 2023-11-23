@@ -29,6 +29,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 "/rsb/**"
         };
 //        //排除的路径
+        String[] excludePathPatterns = {"/user/error"};
 //        String[] excludePathPatterns = {
 //                "/user/login","/user/noLg","/user/error"
 //        };
@@ -36,7 +37,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
         //创建用户拦截器对象并指定其拦截的路径和排除的路径
         //将AccessInterceptor拦截器添加到拦截器链中，不要重新new拦截器对象
 //        registry.addInterceptor(accessInterceptor()).addPathPatterns(addPathPatterns);
-        registry.addInterceptor(accessInterceptor()).addPathPatterns(addPathPatterns);
+        registry.addInterceptor(accessInterceptor()).addPathPatterns(addPathPatterns).excludePathPatterns(excludePathPatterns);
         WebMvcConfigurer.super.addInterceptors(registry);
     }
 }
